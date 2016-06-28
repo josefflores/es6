@@ -8,6 +8,7 @@
  *  @name   GlobalApplication.js
  */
 
+
 //  IMPORTS
 
 import path from 'path';
