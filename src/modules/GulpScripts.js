@@ -46,6 +46,8 @@ import jsBeautifier from 'gulp-jsbeautifier';
 
 let server;
 let ini;
+let watcher;
+let restartWatch;
 
 //  EXPORT FUNCTIONS
 
@@ -66,7 +68,19 @@ export function lintFunc(done, file = ini.paths.src) {
 };
 
 export function formatFunc(done, file = ini.paths.src) {
-    return gulp.src(file, {
+
+
+    if (watcher) {
+        watcher.end();
+        watcher = null;
+        restartWatch = true;
+        global.app.log({
+            origin: 'gulp.watch',
+            msg: ['event:end', 'Pausing watcher during file format']
+        });
+    }
+
+    let stream = gulp.src(file, {
             base: './'
         })
         .pipe(debug({
@@ -74,6 +88,18 @@ export function formatFunc(done, file = ini.paths.src) {
         }))
         .pipe(jsBeautifier(ini.gulp.format.js))
         .pipe(gulp.dest('./'));
+
+    stream.on('end', (done) => {
+        if (restartWatch) {
+            global.app.log({
+                origin: 'gulp.watch',
+                msg: ['event:restart', 'Restarting watcher after file format']
+            });
+            restartWatch = false;
+            watchFunc(done);
+        }
+        done();
+    });
 };
 
 export function babelFunc(done, file = ini.paths.src) {
@@ -96,13 +122,57 @@ export function cleanFunc(done) {
 };
 
 export function watchFunc(done) {
-    return gulp.watch(ini.paths.src)
-        .on('change', file => {
+    watcher = gulp.watch(ini.paths.src)
+        .on('ready', () => {
+            global.app.log({
+                origin: 'gulp.watch',
+                msg: ['event:ready', 'Initial scan complete. Ready for changes']
+            });
+        })
+        .on('add', (file) => {
+            global.app.log({
+                origin: 'gulp.watch',
+                msg: ['event:add', file]
+            });
+        })
+        .on('change', (file) => {
+            global.app.log({
+                origin: 'gulp.watch',
+                msg: ['event:change', file]
+            });
             lintFunc(done, file);
-            formatFunc(done, file);
+            //formatFunc(done, file);
             babelFunc(done, file);
             serverRestart(done);
+        })
+        .on('unlink', (event) => {
+            global.app.log({
+                origin: 'gulp.watch',
+                msg: ['event:unlink', event]
+            });
+        })
+        .on('error', (error) => {
+            global.app.err({
+                origin: 'gulp.watch',
+                msg: [error]
+            });
         });
+
+
+    /*.on('raw', (event, path, details) => {
+        switch (event) {
+        case 'rename':
+            global.app.log({
+                origin: 'rename',
+                msg: [path, details]
+            });
+            break;
+        default:
+            console.log('Raw event info:', `"${event}"`, path, details);
+        }
+    });*/
+
+    return watcher;
 };
 
 export function serverStart(done) {
@@ -120,10 +190,4 @@ export function git(err) {
     if (err) {
         throw err;
     }
-};
-
-export function exec(err, stdout, stderr, done) {
-    !stdout || console.log(err);
-    !stderr || console.log(err);
-    done(err);
 };

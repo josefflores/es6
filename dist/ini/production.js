@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _paths = require('./modules/paths.js');
+var _paths = require('./segments/paths.js');
 
 var _paths2 = _interopRequireDefault(_paths);
 

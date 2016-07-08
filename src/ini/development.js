@@ -6,8 +6,8 @@
 
 //	IMPORTS
 
-import gulp from './modules/gulp';
-import paths from './modules/paths';
+import gulp from './segments/gulp';
+import paths from './segments/paths';
 
 //  EXPORTS
 

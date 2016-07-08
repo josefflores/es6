@@ -17,9 +17,6 @@ import pJson from '../../package.json';
 import iniDev from '../ini/development';
 import iniProd from '../ini/production';
 
-//	PRIVATE VARIABLES
-let _private = new WeakMap();
-
 /**
  *  Ties in configurations and application reporting. It is to be imported in
  * 	the application entry point.
@@ -27,32 +24,43 @@ let _private = new WeakMap();
  *  Examples:
  *
  *      import GApp from './path/to/GApp'
- * 		global.app = new GApp('iniMode', __dirname);
- *		let ini = global.app.ini();
+ * 		global.app = new GApp('development | production', __dirname);
+ *      let ini = global.app.ini;
  *
  *  @class  GlobalApp
  *
  *  @param  mode 	{String}   	The ini (developement|production|gulp) file to use.
  *  @param  root 	{String}	The root directory path.
  */
+
+//	PRIVATE VARIABLES
+let _private = new WeakMap();
+
 export default class GlobalApp {
 
-    constructor(mode, root) {
+    constructor(mode, root, debug = false) {
 
         _private.set(this, {
             mode,
             root: path.resolve(root),
-            about: pJson.name + ' ' + pJson.version
+            about: pJson.name + ' ' + pJson.version,
+            debug
         });
+
+        let msg = ['Using ini:', mode];
+
         //  Output creation status and info
         this.log({
             origin: this.constructor.name,
             msg: ['Initializing.']
         });
 
+        if (debug) {
+            msg.push(this.ini);
+        }
         this.log({
             origin: this.constructor.name,
-            msg: ['Using ini:', mode, this.ini]
+            msg
         });
 
         this.log({

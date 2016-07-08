@@ -77,12 +77,14 @@ class Api {
         //	PRIVATE VARIABLES
 
         _private(this, {
-            msg: '[ API ]',
             app: app,
             methods: []
         });
 
-        global.app.console.log(_private.get(this).msg, 'Initialized.');
+        global.app.log({
+            origin: this.constructor.name,
+            msg: ['Initializing.']
+        });
     }
 
     /**
@@ -111,12 +113,21 @@ class Api {
      *  @param  {Function}  func    The api function
      */
     add(obj, func) {
-        global.app.console.log(_private.get(this).msg, 'Adding API method.', obj.url);
 
-        let ObjRet = obj.return.toLowerCase();
+        //  VARIABLES
+        let ObjReturnType;
 
-        if (validMethod(objRet)) {
-            global.app.console.err(_private.get(this).msg, 'Invalid API return methods for', obj.url);
+        global.app.log({
+            origin: this.constructor.name,
+            msg: ['Adding API method.', obj.url]
+        });
+
+        ObjReturnType = obj.return.toLowerCase();
+        if (validMethod(ObjReturnType)) {
+            global.app.err({
+                origin: this.constructor.name,
+                msg: ['Invalid API return methods for', obj.url]
+            });
             return false;
         }
 
@@ -124,10 +135,14 @@ class Api {
         _private.get(this).methods.push(obj);
 
         //	Linking to app
-        _private.get(this).app[ObjRet](obj.url, (req, res) => {
-            func(req, res, httpRes.crud[ObjRet]);
+        _private.get(this).app[ObjReturnType](obj.url, (req, res) => {
+            func(req, res, httpRes.crud[ObjReturnType]);
         });
-        global.app.console.log(_private.get(this).msg, 'MAPPED - ', obj.url);
+
+        global.app.log({
+            origin: this.constructor.name,
+            msg: ['MAPPED - ', obj.url]
+        });
     }
 
     /**
@@ -145,7 +160,11 @@ class Api {
     response(res, err, doc, obj) {
         if (err) {
             // respond if there is an error
-            global.app.console.err(msg, 'Error case', err, doc);
+            global.app.err({
+                origin: this.constructor.name,
+                msg: ['Error case', err, doc]
+            });
+
             res.status(obj.failure).send(httpRes.resp[obj.failure].msg);
         } else {
             if (obj.data) {
@@ -191,7 +210,10 @@ class Api {
             _this.response(res, true, '400', httpRes.crud.MISSING);
         });
 
-        global.app.console.log(_private.get(this).msg, 'Waiting for method call ...');
+        global.app.log({
+            origin: this.constructor.name,
+            msg: ['Waiting for method call ...']
+        });
     }
 }
 exports.default = Api;

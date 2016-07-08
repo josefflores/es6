@@ -1,3 +1,11 @@
+/**
+ * 	The application entry point.
+ *
+ * 	@name app.js
+ */
+
+//	IMPORTS
+
 import GApp from './modules/GlobalApp'
 
 //	GLOBALS

@@ -8,6 +8,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 //	GLOBALS
 
-global.app = new _GlobalApp2.default('development', __dirname);
+global.app = new _GlobalApp2.default('development', __dirname); /**
+                                                                 * 	The application entry point.
+                                                                 *
+                                                                 * 	@name app.js
+                                                                 */
+
+//	IMPORTS
 
 console.log('server started');

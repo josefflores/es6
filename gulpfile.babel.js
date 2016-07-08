@@ -29,7 +29,7 @@ gulp.task('code-clean', gs.cleanFunc);
 gulp.task('code-init', gulp.series('code-clean', 'code-lint', 'code-format', 'code-babel'));
 
 gulp.task('server-start', gs.serverStart);
-gulp.task('server-deploy', gulp.series('code-init', 'server-start')); //'code-watch'
+gulp.task('server-deploy', gulp.series('code-init', 'server-start', 'code-watch'));
 
 gulp.task('default', gulp.series('server-deploy'));
 /*gulp.task('help', gs.help);

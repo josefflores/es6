@@ -6,13 +6,12 @@ Object.defineProperty(exports, "__esModule", {
 exports.init = init;
 exports.lintFunc = lintFunc;
 exports.formatFunc = formatFunc;
-exports.watchFunc = watchFunc;
 exports.babelFunc = babelFunc;
 exports.cleanFunc = cleanFunc;
+exports.watchFunc = watchFunc;
 exports.serverStart = serverStart;
 exports.serverRestart = serverRestart;
 exports.git = git;
-exports.exec = exec;
 
 var _gulp = require('gulp');
 
@@ -83,7 +82,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *  @name   Gulp-Scripts.js
  */
 
-//  IMPORTS
+// IMPORTS
 
 let server;
 let ini;
@@ -114,15 +113,6 @@ function formatFunc(done) {
     })).pipe((0, _gulpJsbeautifier2.default)(ini.gulp.format.js)).pipe(_gulp2.default.dest('./'));
 };
 
-function watchFunc(done) {
-    return _gulp2.default.watch(ini.paths.src).on('change', file => {
-        lintFunc(done, file);
-        formatFunc(done, file);
-        babelFunc(done, file);
-        serverRestart(done);
-    });
-};
-
 function babelFunc(done) {
     let file = arguments.length <= 1 || arguments[1] === undefined ? ini.paths.src : arguments[1];
 
@@ -139,6 +129,52 @@ function cleanFunc(done) {
     }));
 };
 
+function watchFunc(done) {
+    return _gulp2.default.watch(ini.paths.src).on('ready', () => {
+        global.app.log({
+            origin: 'gulp.watch',
+            msg: ['event:ready', 'Initial scan complete. Ready for changes']
+        });
+    }).on('add', file => {
+        global.app.log({
+            origin: 'gulp.watch',
+            msg: ['event:add', file]
+        });
+    }).on('change', file => {
+        global.app.log({
+            origin: 'gulp.watch',
+            msg: ['event:change', file]
+        });
+        //lintFunc(done, file);
+        //formatFunc(done, file);
+        //babelFunc(done, file);
+        //serverRestart(done);
+    }).on('unlink', event => {
+        global.app.log({
+            origin: 'gulp.watch',
+            msg: ['event:unlink', event]
+        });
+    }).on('error', error => {
+        global.app.err({
+            origin: 'gulp.watch',
+            msg: [error]
+        });
+    });
+
+    /*.on('raw', (event, path, details) => {
+        switch (event) {
+        case 'rename':
+            global.app.log({
+                origin: 'rename',
+                msg: [path, details]
+            });
+            break;
+        default:
+            console.log('Raw event info:', `"${event}"`, path, details);
+        }
+    });*/
+};
+
 function serverStart(done) {
     server = _gulpLiveServer2.default.new(_path2.default.join(global.app.root, ini.paths.entry));
     server.start();
@@ -150,36 +186,8 @@ function serverRestart(done) {
     done();
 };
 
-/**
- *  Processes a gulp-git error
- *
- *  @method   ErrorGulp.git
- *
- *  @param  {Object}    err     The error being handled
- *  @throw  {Object}    err     The error being handled
- */
 function git(err) {
     if (err) {
         throw err;
     }
-};
-
-/**
- *  Handles errors for gulp-exec.
- *
- *  @method   ErrorGulp.exec
- *
- *  @param  {Object}    err         The error being handled
- *  @param  {Stream}    stdout      stdout stream
- *  @param  {Stream}    stderr      stderr stream
- *  @param  {Function}  done        Callback function
- */
-function exec(err, stdout, stderr, done) {
-    if (stdout) {
-        console.log(stdout);
-    }
-    if (stderr) {
-        console.log(stderr);
-    }
-    done(err);
 };

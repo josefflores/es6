@@ -1,26 +1,44 @@
 'use strict';
 
-/**
- *  This holds the error handlers for the application.
- *
- *  @name   Error.js
- */
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 
-//  REQUIRES
+var _path = require('path');
 
-var path = require('path');
-var ini = require(global.app.ini());
+var _path2 = _interopRequireDefault(_path);
 
-//  VARIABLES
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var msg = '[ ERROR ]';
+//	PRIVATE VARIABLES
+let _private = new WeakMap();
 
 /**
  *  This class holds all the error responses for the application.
  *
  *  @class  ErrorHandler
  */
-var ErrorHandler = function ErrorHandler() {
+/**
+ *  This holds the error handlers for the application.
+ *
+ *  @name   ErrorHandler.js
+ */
+
+//  REQUIRES
+
+class ErrorHandler {
+
+    constructor(app) {
+        _private.set(this, {
+            ini: global.app.ini
+        });
+
+        global.app.log({
+            origin: this.constructor.name,
+            msg: ['Initializing.']
+        });
+    }
+
     /**
      *  Process a 404 missing resource
      *
@@ -30,14 +48,21 @@ var ErrorHandler = function ErrorHandler() {
      *  @param  {Object}    res     The response passed by the application
      *  @param  {Function}  next    The function to the next express item
      */
-    this.notFound = function (req, res) {
-        res.status(400);
-        res.render(path.join(ini.path.views, 'page.error.jade'), {
-            title: '404: File Not Found',
-            message: '',
-            error: {}
+    notFound() {
+        global.app.log({
+            origin: this.constructor.name,
+            msg: ['Adding', '404 - Not Found.']
         });
-    };
+
+        _private.get(this).app.use((req, res) => {
+            res.status(400);
+            res.render(_path2.default.join(ini.path.views, 'page.error.jade'), {
+                title: '404: File Not Found',
+                message: '',
+                error: {}
+            });
+        });
+    }
 
     /**
      *  Processes a 500 server error
@@ -52,38 +77,20 @@ var ErrorHandler = function ErrorHandler() {
      *  @param  {Object}    res     The response passed by the application
      *  @param  {Function}  next    The function to the next express item
      */
-    this.server = function (err, req, res, next) {
-        res.status(err.status || 500);
-        res.render(path.join(ini.path.views, 'page.error.jade'), {
-            title: '500: Internal Server Error',
-            message: 'There was an error in our system, sorry for the inconvenience.',
-            error: ini.mode === 'dev' ? error : {}
+    server() {
+        global.app.log({
+            origin: this.constructor.name,
+            msg: ['Adding', '500 - Server.']
         });
-    };
-};
 
-/**
- *  Error handler middle ware intercept function
- *
- *  @function   middleWare
- *
- *  @param  {Object}    app    The express application
- */
-var middleWare = function middleWare(app) {
-
-    global.app.console.log(msg, 'Initializing.');
-    var err = new ErrorHandler();
-
-    global.app.console.log(msg, 'Adding error responses..');
-
-    app.use(err.notFound);
-    global.app.console.log(msg, ' - ', '404 - Not Found.');
-
-    app.use(err.server);
-    global.app.console.log(msg, ' - ', '500 - Server.');
-
-    global.app.console.log(msg, 'Done.');
-};
-
-//  Export content
-module.exports = middleWare;
+        _private.get(this).app.use((err, req, res, next) => {
+            res.status(err.status || 500);
+            res.render(_path2.default.join(ini.path.views, 'page.error.jade'), {
+                title: '500: Internal Server Error',
+                message: 'There was an error in the system, sorry for the inconvenience.',
+                error: ini.mode === 'dev' ? error : {}
+            });
+        });
+    }
+}exports.default = ErrorHandler;
+;

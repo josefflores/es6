@@ -6,7 +6,7 @@
 
 // IMPORTS
 
-import paths from './modules/paths.js';
+import paths from './segments/paths.js';
 
 // EXPORTS
 

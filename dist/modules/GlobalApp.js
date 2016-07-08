@@ -36,8 +36,8 @@ let _private = new WeakMap();
  *  Examples:
  *
  *      import GApp from './path/to/GApp'
- * 		global.app = new GApp('iniMode', __dirname);
- *		let ini = global.app.ini();
+ * 		global.app = new GApp('development | production', __dirname);
+ *      let ini = global.app.ini;
  *
  *  @class  GlobalApp
  *
@@ -60,21 +60,29 @@ let _private = new WeakMap();
 class GlobalApp {
 
     constructor(mode, root) {
+        let showConfig = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+
 
         _private.set(this, {
             mode: mode,
             root: _path2.default.resolve(root),
             about: _package2.default.name + ' ' + _package2.default.version
         });
+
+        let msg = ['Using ini:', mode];
+
         //  Output creation status and info
         this.log({
             origin: this.constructor.name,
             msg: ['Initializing.']
         });
 
+        if (showConfig) {
+            msg.push(this.ini);
+        }
         this.log({
             origin: this.constructor.name,
-            msg: ['Using ini:', mode, this.ini]
+            msg: msg
         });
 
         this.log({

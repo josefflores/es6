@@ -4,11 +4,11 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _gulp = require('./modules/gulp');
+var _gulp = require('./segments/gulp');
 
 var _gulp2 = _interopRequireDefault(_gulp);
 
-var _paths = require('./modules/paths');
+var _paths = require('./segments/paths');
 
 var _paths2 = _interopRequireDefault(_paths);
 
