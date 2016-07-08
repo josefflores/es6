@@ -4,12 +4,15 @@
  *  @name    production.js
  */
 
-import paths from './common/paths.js';
+// IMPORTS
 
-// Configuration settings
+import paths from './modules/paths.js';
+
+// EXPORTS
+
 export default {
     app: {
         mode: 'prod'
     },
-    path: paths
+    paths
 };

@@ -6,13 +6,15 @@
 
 //	IMPORTS
 
-import paths from './common/paths.js';
+import gulp from './modules/gulp';
+import paths from './modules/paths';
 
-// 	SETTINGS
+//  EXPORTS
 
 export default {
     app: {
         mode: 'dev'
     },
-    path: paths
+    gulp,
+    paths
 };

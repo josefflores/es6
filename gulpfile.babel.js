@@ -8,29 +8,36 @@
 
 
 //	IMPORTS
-
 import gulp from 'gulp';
 
-import GApp from './src/server/lib/GlobalApp'
-import * as gs from './src/server/lib/gulp/Gulp-Scripts';
+import GApp from './src/modules/GlobalApp'
+import * as gs from './src/modules/GulpScripts';
 
 //	GLOBALS
 
-global.app = new GApp('gulp', __dirname);
+global.app = new GApp('development', __dirname);
 gs.init();
 
 //	TASKS
 
-gulp.task('babel', gs.babelFunc);
-gulp.task('clean', gs.cleanFunc);
+gulp.task('code-watch', gs.watchFunc);
 
-gulp.task('help', gs.help);
+gulp.task('code-babel',  gs.babelFunc);
+gulp.task('code-format', gs.formatFunc);
+gulp.task('code-lint', gs.lintFunc);
+gulp.task('code-clean', gs.cleanFunc);
+gulp.task('code-init', gulp.series('code-clean', 'code-lint', 'code-format', 'code-babel'));
 
-gulp.task('lint', gs.lintFunc);
-gulp.task('format', gs.formatFunc);
+gulp.task('server-start', gs.serverStart);
+gulp.task('server-deploy', gulp.series('code-init', 'server-start')); //'code-watch'
 
-gulp.task('watch', gs.watchFunc);
-
-gulp.task('process', gulp.series('lint', 'format', 'babel'));
-gulp.task('build', gulp.series('clean', 'process'));
-gulp.task('default', gulp.series('build','watch'));
+gulp.task('default', gulp.series('server-deploy'));
+/*gulp.task('help', gs.help);
+/*gulp.task('watch', () => {
+  	return nodemon({
+		script: 'dist/app.js', // run ES5 code
+        watch: 'src', // watch ES2015 code
+        tasks: ['code-process'] // compile synchronously onChange
+	})
+});
+//gulp.task('default', gulp.series('help'));*/
