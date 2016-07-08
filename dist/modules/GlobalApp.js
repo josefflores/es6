@@ -26,9 +26,6 @@ var _production2 = _interopRequireDefault(_production);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-//	PRIVATE VARIABLES
-let _private = new WeakMap();
-
 /**
  *  Ties in configurations and application reporting. It is to be imported in
  * 	the application entry point.
@@ -44,7 +41,9 @@ let _private = new WeakMap();
  *  @param  mode 	{String}   	The ini (developement|production|gulp) file to use.
  *  @param  root 	{String}	The root directory path.
  */
-//  coloring for console label
+
+//	PRIVATE VARIABLES
+let _private = new WeakMap(); //  coloring for console label
 /**
  *  Holds the Global application obj, this object determines information about the
  *  running application and resolves which configuration file to use. It also
@@ -60,13 +59,14 @@ let _private = new WeakMap();
 class GlobalApp {
 
     constructor(mode, root) {
-        let showConfig = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+        let debug = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
 
         _private.set(this, {
             mode: mode,
             root: _path2.default.resolve(root),
-            about: _package2.default.name + ' ' + _package2.default.version
+            about: _package2.default.name + ' ' + _package2.default.version,
+            debug: debug
         });
 
         let msg = ['Using ini:', mode];
@@ -77,7 +77,7 @@ class GlobalApp {
             msg: ['Initializing.']
         });
 
-        if (showConfig) {
+        if (debug) {
             msg.push(this.ini);
         }
         this.log({

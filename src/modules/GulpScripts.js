@@ -69,37 +69,26 @@ export function lintFunc(done, file = ini.paths.src) {
 
 export function formatFunc(done, file = ini.paths.src) {
 
+    pauseWatch();
 
-    if (watcher) {
-        watcher.end();
-        watcher = null;
-        restartWatch = true;
-        global.app.log({
-            origin: 'gulp.watch',
-            msg: ['event:end', 'Pausing watcher during file format']
-        });
-    }
-
-    let stream = gulp.src(file, {
+    return gulp.src(file, {
             base: './'
         })
         .pipe(debug({
             title: ' - jsBeautifier:'
         }))
         .pipe(jsBeautifier(ini.gulp.format.js))
-        .pipe(gulp.dest('./'));
-
-    stream.on('end', (done) => {
-        if (restartWatch) {
-            global.app.log({
-                origin: 'gulp.watch',
-                msg: ['event:restart', 'Restarting watcher after file format']
-            });
-            restartWatch = false;
-            watchFunc(done);
-        }
-        done();
-    });
+        .pipe(gulp.dest('./'))
+        .on('end', () => {
+            if (restartWatch) {
+                restartWatch = false;
+                global.app.log({
+                    origin: 'gulp.watch',
+                    msg: ['event:restart', 'Restarting watcher after file format']
+                });
+                watchFunc(done);
+            }
+        });
 };
 
 export function babelFunc(done, file = ini.paths.src) {
@@ -111,14 +100,28 @@ export function babelFunc(done, file = ini.paths.src) {
         .pipe(gulp.dest('./dist'));
 };
 
+
 export function cleanFunc(done) {
     return gulp.src(ini.paths.dist)
         .pipe(debug({
             title: ' - clean:'
         }))
         .pipe(clean({
-            force: true
+            force: true,
+            read: false
         }));
+};
+
+function pauseWatch() {
+    if (watcher) {
+        watcher.end();
+        watcher = null;
+        restartWatch = true;
+        global.app.log({
+            origin: 'pauseWatch',
+            msg: ['event:end', 'Pausing watcher during file format']
+        });
+    }
 };
 
 export function watchFunc(done) {
@@ -157,7 +160,6 @@ export function watchFunc(done) {
                 msg: [error]
             });
         });
-
 
     /*.on('raw', (event, path, details) => {
         switch (event) {

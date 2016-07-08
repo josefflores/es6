@@ -12,6 +12,6 @@ import path from 'path';
 
 export default {
     src: ['./src/**/*.js'],
-    dist: './dist',
+    dist: './dist/',
     entry: './dist/app.js'
 };

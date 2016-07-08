@@ -14,7 +14,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 exports.default = {
   src: ['./src/**/*.js'],
-  dist: './dist',
+  dist: './dist/',
   entry: './dist/app.js'
 }; /**
     *  The configuration file for absolute paths.
