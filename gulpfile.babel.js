@@ -20,12 +20,12 @@ gs.init();
 
 //	TASKS
 
-gulp.task('code-watch', gs.watchFunc);
+gulp.task('code-watch', gs.watch);
 
-gulp.task('code-babel',  gs.babelFunc);
-gulp.task('code-format', gs.formatFunc);
-gulp.task('code-lint', gs.lintFunc);
-gulp.task('code-clean', gs.cleanFunc);
+gulp.task('code-babel',  gs.babel);
+gulp.task('code-format', gs.format);
+gulp.task('code-lint', gs.lint);
+gulp.task('code-clean', gs.clean);
 gulp.task('code-init', gulp.series('code-clean', 'code-lint', 'code-format', 'code-babel'));
 
 gulp.task('server-start', gs.serverStart);

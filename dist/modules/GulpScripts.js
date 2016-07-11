@@ -4,11 +4,11 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 exports.init = init;
-exports.lintFunc = lintFunc;
-exports.formatFunc = formatFunc;
-exports.babelFunc = babelFunc;
-exports.cleanFunc = cleanFunc;
-exports.watchFunc = watchFunc;
+exports.lint = lint;
+exports.format = format;
+exports.babel = babel;
+exports.clean = clean;
+exports.watch = watch;
 exports.serverStart = serverStart;
 exports.serverRestart = serverRestart;
 exports.git = git;
@@ -45,6 +45,10 @@ var _gulpJsbeautifier = require('gulp-jsbeautifier');
 
 var _gulpJsbeautifier2 = _interopRequireDefault(_gulpJsbeautifier);
 
+var _gulpWatcher = require('gulp-watcher');
+
+var _gulpWatcher2 = _interopRequireDefault(_gulpWatcher);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 //import yargs from 'yargs';
@@ -76,18 +80,16 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 //	VARIABLES
 
-/**
- *  This holds the scripts for Gulp.
- *
- *  @name   Gulp-Scripts.js
- */
+let server; /**
+             *  This holds the scripts for Gulp.
+             *
+             *  @name   Gulp-Scripts.js
+             */
 
 // IMPORTS
 
-let server;
 let ini;
-let watcher;
-let restartWatch;
+let scanner;
 
 //  EXPORT FUNCTIONS
 
@@ -97,7 +99,7 @@ function init() {
     }
 }
 
-function lintFunc(done) {
+function lint(done) {
     let file = arguments.length <= 1 || arguments[1] === undefined ? ini.paths.src : arguments[1];
 
     return _gulp2.default.src(file).pipe((0, _gulpDebug2.default)({
@@ -105,29 +107,25 @@ function lintFunc(done) {
     })).pipe((0, _gulpEslint2.default)()).pipe(_gulpEslint2.default.format()).pipe(_gulpEslint2.default.failOnError());
 };
 
-function formatFunc(done) {
+function format(done) {
     let file = arguments.length <= 1 || arguments[1] === undefined ? ini.paths.src : arguments[1];
 
-
-    pauseWatch();
+    if (scanner) {
+        _gulpWatcher2.default.pause('masterWatcher');
+    }
 
     return _gulp2.default.src(file, {
         base: './'
     }).pipe((0, _gulpDebug2.default)({
         title: ' - jsBeautifier:'
     })).pipe((0, _gulpJsbeautifier2.default)(ini.gulp.format.js)).pipe(_gulp2.default.dest('./')).on('end', () => {
-        if (restartWatch) {
-            restartWatch = false;
-            global.app.log({
-                origin: 'gulp.watch',
-                msg: ['event:restart', 'Restarting watcher after file format']
-            });
-            watchFunc(done);
+        if (scanner) {
+            _gulpWatcher2.default.start('masterWatcher');
         }
     });
 };
 
-function babelFunc(done) {
+function babel(done) {
     let file = arguments.length <= 1 || arguments[1] === undefined ? ini.paths.src : arguments[1];
 
     return _gulp2.default.src(file).pipe((0, _gulpDebug2.default)({
@@ -135,7 +133,7 @@ function babelFunc(done) {
     })).pipe((0, _gulpBabel2.default)()).pipe(_gulp2.default.dest('./dist'));
 };
 
-function cleanFunc(done) {
+function clean(done) {
     return _gulp2.default.src(ini.paths.dist).pipe((0, _gulpDebug2.default)({
         title: ' - clean:'
     })).pipe((0, _gulpClean2.default)({
@@ -144,23 +142,11 @@ function cleanFunc(done) {
     }));
 };
 
-function pauseWatch() {
-    if (watcher) {
-        watcher.end();
-        watcher = null;
-        restartWatch = true;
-        global.app.log({
-            origin: 'pauseWatch',
-            msg: ['event:end', 'Pausing watcher during file format']
-        });
-    }
-};
-
-function watchFunc(done) {
-    watcher = _gulp2.default.watch(ini.paths.src).on('ready', () => {
+function watch(done) {
+    scanner = _gulpWatcher2.default.create('masterWatcher', ini.paths.src).on('ready', () => {
         global.app.log({
             origin: 'gulp.watch',
-            msg: ['event:ready', 'Initial scan complete. Ready for changes']
+            msg: ['event:ready', 'Ready for changes.']
         });
     }).on('add', file => {
         global.app.log({
@@ -168,13 +154,15 @@ function watchFunc(done) {
             msg: ['event:add', file]
         });
     }).on('change', file => {
+
         global.app.log({
             origin: 'gulp.watch',
             msg: ['event:change', file]
         });
-        lintFunc(done, file);
-        //formatFunc(done, file);
-        babelFunc(done, file);
+
+        lint(done, file);
+        format(done, file);
+        babel(done, file);
         serverRestart(done);
     }).on('unlink', event => {
         global.app.log({
@@ -188,6 +176,7 @@ function watchFunc(done) {
         });
     });
 
+    return scanner;
     /*.on('raw', (event, path, details) => {
         switch (event) {
         case 'rename':
@@ -200,8 +189,6 @@ function watchFunc(done) {
             console.log('Raw event info:', `"${event}"`, path, details);
         }
     });*/
-
-    return watcher;
 };
 
 function serverStart(done) {
@@ -212,7 +199,7 @@ function serverStart(done) {
 
 function serverRestart(done) {
     server.start.bind(server)();
-    done();
+    return _gulp2.default.src('.');
 };
 
 function git(err) {

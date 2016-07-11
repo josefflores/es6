@@ -12,18 +12,11 @@ var _urlJoin = require('url-join');
 
 var _urlJoin2 = _interopRequireDefault(_urlJoin);
 
+var _httpResponses = require('../ini/segments/httpResponses');
+
+var _httpResponses2 = _interopRequireDefault(_httpResponses);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- *  The Api handler for the application.
- *
- *  @name   Api.js
- */
-
-//  REQUIRES
-
-let ini = require(global.app.ini());
-let httpRes = require(_path2.default.join(ini.path.models, 'response.json'));
 
 /**
  *  This is the Api class. It adds api point to the express application.
@@ -66,6 +59,14 @@ let _private = new WeakMap();
  *  @return {Boolean}   true    The return type is valid
  *  @return {Boolean}   false   An unknown return type
  */
+/**
+ *  The Api handler for the application.
+ *
+ *  @name   Api.js
+ */
+
+//  REQUIRES
+
 let validMethod = method => {
     return ['get', 'post', 'put', 'delete'].in(method.toLowerCase());
 };
@@ -136,7 +137,7 @@ class Api {
 
         //	Linking to app
         _private.get(this).app[ObjReturnType](obj.url, (req, res) => {
-            func(req, res, httpRes.crud[ObjReturnType]);
+            func(req, res, _httpResponses2.default.crud[ObjReturnType]);
         });
 
         global.app.log({
@@ -165,14 +166,14 @@ class Api {
                 msg: ['Error case', err, doc]
             });
 
-            res.status(obj.failure).send(httpRes.resp[obj.failure].msg);
+            res.status(obj.failure).send(_httpResponses2.default.resp[obj.failure].msg);
         } else {
             if (obj.data) {
                 // respond for success and send data
                 res.status(obj.success).json(doc);
             } else {
                 // respond for success and send status
-                res.status(obj.success).send(httpRes.resp[obj.success].msg);
+                res.status(obj.success).send(_httpResponses2.default.resp[obj.success].msg);
             }
         }
     }
@@ -207,7 +208,7 @@ class Api {
 
         // Bad Request the API url does not  exist
         _private.get(this).app.get('/api/*', (req, res) => {
-            _this.response(res, true, '400', httpRes.crud.MISSING);
+            _this.response(res, true, '400', _httpResponses2.default.crud.MISSING);
         });
 
         global.app.log({

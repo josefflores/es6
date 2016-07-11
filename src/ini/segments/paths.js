@@ -11,7 +11,7 @@ import path from 'path';
 //  EXPORTS
 
 export default {
-    src: ['./src/**/*.js'],
-    dist: './dist/',
-    entry: './dist/app.js'
+    src: [path.join('.', 'src', '**', '*.js')],
+    dist: path.join('.', 'dist', '*'),
+    entry: path.join('.', 'dist', 'app.js')
 };

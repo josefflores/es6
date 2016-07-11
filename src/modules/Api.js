@@ -9,8 +9,7 @@
 import path from 'path';
 import urlJoin from 'url-join';
 
-let ini = require(global.app.ini());
-let httpRes = require(path.join(ini.path.models, 'response.json'));
+import httpRes from '../ini/segments/httpResponses';
 
 /**
  *  This is the Api class. It adds api point to the express application.
