@@ -15,6 +15,7 @@ import gEslint from 'gulp-eslint';
 import path from 'path';
 import gJsBeautifier from 'gulp-jsbeautifier';
 import chokidar from 'chokidar';
+import combiner from 'stream-combiner2';
 
 //import yargs from 'yargs';
 //import combiner from 'stream-combiner2';
@@ -58,7 +59,17 @@ export function init() {
 }
 
 export function lint(done, file = ini.paths.src) {
-    return gulp.src(file)
+
+    let settings = {
+        base: './',
+        passthrough: true
+    };
+
+    if (file == ini.paths.src) {
+        settings.passthrough = false;
+    }
+
+    return gulp.src(file, settings)
         .pipe(gDebug({
             title: ' - eslint:'
         }))
@@ -68,33 +79,41 @@ export function lint(done, file = ini.paths.src) {
 };
 
 export function format(done, file = ini.paths.src) {
-    if (scanner) {
-        watcher.pause('masterWatcher');
+
+    let settings = {
+        base: './',
+        passthrough: true
+    };
+
+    if (file == ini.paths.src) {
+        settings.passthrough = false;
     }
 
-    return gulp.src(file, {
-        base: './'
-    })
-
-    .pipe(gDebug({
+    return gulp.src(file, settings)
+        .pipe(gDebug({
             title: ' - jsBeautifier:'
         }))
         .pipe(gJsBeautifier(ini.gulp.format.js))
-        .pipe(gulp.dest('./'))
-        .on('end', () => {
-            if (scanner) {
-                watcher.start('masterWatcher');
-            }
-        });
+        .pipe(gulp.dest('./'));
 };
 
 export function babel(done, file = ini.paths.src) {
-    return gulp.src(file)
+
+    let settings = {
+        passthrough: true
+    };
+
+    if (file == ini.paths.src) {
+        settings.passthrough = false;
+    }
+
+    return gulp.src(file, settings)
         .pipe(gDebug({
             title: ' - babel:'
         }))
         .pipe(gBabel())
         .pipe(gulp.dest('./dist'));
+
 };
 
 export function clean(done) {
@@ -131,13 +150,64 @@ export function watch(done) {
                 msg: ['event:change', file]
             });
 
-            return gulp.src(file)
-                .pipe(lint(done, file))
-                .pipe(watcher.unwatch(file))
-                .pipe(format(done, file))
-                .pipe(watcher.add(file))
-                .pipe(babel(done, file))
-                .pipe(serverRestart(done));
+            watcher.unwatch(file);
+            combiner(
+                lint(done, file),
+                format(done, file),
+                babel(done, file)
+            );
+            watcher.add(file);
+
+            /* new Promise((pass, fail) => {
+                    lint(() => {
+                        //console.log(2);
+                        pass();
+                    }, file);
+                    console.log(1);
+                })
+                .then((value) => {
+                    console.log(3);
+                    return new Promise((pass, fail) => {
+                        format(() => {
+                            //console.log(5);
+                            pass();
+                        }, file);
+                        console.log(4);
+                    })
+                })
+                .then((value) => {
+                    console.log(6);
+                    return new Promise((pass, fail) => {
+                        babel(() => {
+                            //console.log(8);
+                            pass();
+                        }, file);
+                        console.log(7);
+                    })
+                })
+
+                .then((value) => {
+                    serverRestart(()=>{
+                        console.log('server');
+                    });
+                });
+*/
+
+            /*.then((value) => {
+                        console.log(3);
+                        //format(done, file);
+                    })
+                    .then((value) => {
+                        console.log(4);
+                    // watcher.add(file);
+                    })*/
+
+            /*.then((value) => {
+                console.log(5);
+
+                //serverRestart(done)
+            });*/
+
         })
         .on('unlink', (event) => {
             global.app.log({

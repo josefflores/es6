@@ -45,9 +45,13 @@ var _gulpJsbeautifier = require('gulp-jsbeautifier');
 
 var _gulpJsbeautifier2 = _interopRequireDefault(_gulpJsbeautifier);
 
-var _gulpWatcher = require('gulp-watcher');
+var _chokidar = require('chokidar');
 
-var _gulpWatcher2 = _interopRequireDefault(_gulpWatcher);
+var _chokidar2 = _interopRequireDefault(_chokidar);
+
+var _streamCombiner = require('stream-combiner2');
+
+var _streamCombiner2 = _interopRequireDefault(_streamCombiner);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -80,16 +84,17 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 //	VARIABLES
 
-let server; /**
-             *  This holds the scripts for Gulp.
-             *
-             *  @name   Gulp-Scripts.js
-             */
+/**
+ *  This holds the scripts for Gulp.
+ *
+ *  @name   Gulp-Scripts.js
+ */
 
 // IMPORTS
 
+let server;
 let ini;
-let scanner;
+let watcher;
 
 //  EXPORT FUNCTIONS
 
@@ -102,35 +107,72 @@ function init() {
 function lint(done) {
     let file = arguments.length <= 1 || arguments[1] === undefined ? ini.paths.src : arguments[1];
 
-    return _gulp2.default.src(file).pipe((0, _gulpDebug2.default)({
+
+    let settings = {
+        base: './',
+        passthrough: true
+    };
+
+    if (file == ini.paths.src) {
+        settings.passthrough = false;
+    }
+
+    console.log('lint', settings);
+
+    return _gulp2.default.src(file, settings).pipe((0, _gulpDebug2.default)({
         title: ' - eslint:'
     })).pipe((0, _gulpEslint2.default)()).pipe(_gulpEslint2.default.format()).pipe(_gulpEslint2.default.failOnError());
+    //.end(() => {
+    //console.log('endLint');
+    //    done();
+    // });
 };
 
 function format(done) {
     let file = arguments.length <= 1 || arguments[1] === undefined ? ini.paths.src : arguments[1];
 
-    if (scanner) {
-        _gulpWatcher2.default.pause('masterWatcher');
+
+    let settings = {
+        base: './',
+        passthrough: true
+    };
+
+    if (file == ini.paths.src) {
+        settings.passthrough = false;
     }
 
-    return _gulp2.default.src(file, {
-        base: './'
-    }).pipe((0, _gulpDebug2.default)({
+    console.log('format', settings);
+
+    return _gulp2.default.src(file, settings).pipe((0, _gulpDebug2.default)({
         title: ' - jsBeautifier:'
-    })).pipe((0, _gulpJsbeautifier2.default)(ini.gulp.format.js)).pipe(_gulp2.default.dest('./')).on('end', () => {
-        if (scanner) {
-            _gulpWatcher2.default.start('masterWatcher');
-        }
-    });
+    })).pipe((0, _gulpJsbeautifier2.default)(ini.gulp.format.js)).pipe(_gulp2.default.dest('./'));
+    //.end(() => {
+    //console.log('endFormat');
+    //    done();
+    //});
 };
 
 function babel(done) {
     let file = arguments.length <= 1 || arguments[1] === undefined ? ini.paths.src : arguments[1];
 
-    return _gulp2.default.src(file).pipe((0, _gulpDebug2.default)({
+
+    let settings = {
+        passthrough: true
+    };
+
+    if (file == ini.paths.src) {
+        settings.passthrough = false;
+    }
+
+    console.log('format', settings);
+
+    return _gulp2.default.src(file, settings).pipe((0, _gulpDebug2.default)({
         title: ' - babel:'
     })).pipe((0, _gulpBabel2.default)()).pipe(_gulp2.default.dest('./dist'));
+    //.end(() => {
+    //console.log('endBabel');
+    //     done();
+    // });
 };
 
 function clean(done) {
@@ -143,7 +185,9 @@ function clean(done) {
 };
 
 function watch(done) {
-    scanner = _gulpWatcher2.default.create('masterWatcher', ini.paths.src).on('ready', () => {
+    watcher = _chokidar2.default.watch(ini.paths.src);
+
+    watcher.on('ready', () => {
         global.app.log({
             origin: 'gulp.watch',
             msg: ['event:ready', 'Ready for changes.']
@@ -160,10 +204,55 @@ function watch(done) {
             msg: ['event:change', file]
         });
 
-        lint(done, file);
-        format(done, file);
-        babel(done, file);
-        serverRestart(done);
+        (0, _streamCombiner2.default)(lint(done, file), format(done, file), babel(done, file));
+
+        /* new Promise((pass, fail) => {
+                lint(() => {
+                    //console.log(2);
+                    pass();
+                }, file);
+                console.log(1);
+            })
+            .then((value) => {
+                console.log(3);
+                return new Promise((pass, fail) => {
+                    format(() => {
+                        //console.log(5);
+                        pass();
+                    }, file);
+                    console.log(4);
+                })
+            })
+            .then((value) => {
+                console.log(6);
+                return new Promise((pass, fail) => {
+                    babel(() => {
+                        //console.log(8);
+                        pass();
+                    }, file);
+                    console.log(7);
+                })
+            })
+             .then((value) => {
+                serverRestart(()=>{
+                    console.log('server');
+                });
+            });
+        */
+
+        /*.then((value) => {
+                    console.log(3);
+                    //format(done, file);
+                })
+                .then((value) => {
+                    console.log(4);
+                // watcher.add(file);
+                })*/
+
+        /*.then((value) => {
+            console.log(5);
+             //serverRestart(done)
+        });*/
     }).on('unlink', event => {
         global.app.log({
             origin: 'gulp.watch',
@@ -176,7 +265,7 @@ function watch(done) {
         });
     });
 
-    return scanner;
+    return watcher;
     /*.on('raw', (event, path, details) => {
         switch (event) {
         case 'rename':

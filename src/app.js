@@ -1,1 +1,3 @@
-var x, y, z, c, jgh, kdhhh;
+var x, y, z, c, jgh, kdh,
+
+    njshh;
