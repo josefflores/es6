@@ -62,7 +62,7 @@ export default class Api {
 
         //	PRIVATE VARIABLES
 
-        _private(this, {
+        _private.set(this, {
             app,
             methods: [],
         });

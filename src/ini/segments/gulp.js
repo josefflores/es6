@@ -20,5 +20,9 @@ export default {
         hideEmpty: true
     },
     inPlace: './',
-    linter
+    linter,
+    defaults: {
+        base: './',
+        passthrough: false
+    }
 };

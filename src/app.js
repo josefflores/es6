@@ -1,3 +1,3 @@
-var x, y, z, c, jgh, kdh,
+var
 
-    njshh;
+    hhxg;

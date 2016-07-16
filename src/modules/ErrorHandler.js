@@ -4,18 +4,19 @@
  *  @name   ErrorHandler.js
  */
 
-//  REQUIRES
+//  IMPORTS
 
 import path from 'path';
-
-//	PRIVATE VARIABLES
-let _private = new WeakMap();
 
 /**
  *  This class holds all the error responses for the application.
  *
  *  @class  ErrorHandler
  */
+
+//	PRIVATE VARIABLES
+let _private = new WeakMap();
+
 export default class ErrorHandler {
 
     constructor(app) {
@@ -27,7 +28,6 @@ export default class ErrorHandler {
             origin: this.constructor.name,
             msg: ['Initializing.']
         });
-
     }
 
     /**
