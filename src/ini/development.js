@@ -6,14 +6,14 @@
 
 //	IMPORTS
 
-import gulp from './segments/gulp';
-import paths from './segments/paths';
+import gulp from './segment/gulp';
+import paths from './segment/paths';
 
 //  EXPORTS
 
 export default {
-    app: {
-        mode: 'dev'
+    'app': {
+        'mode': 'dev'
     },
     gulp,
     paths

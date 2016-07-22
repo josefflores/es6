@@ -1,21 +1,30 @@
-/**
- *  Holds the Global application obj, this object determines information about the
- *  running application and resolves which configuration file to use. It also
- *  creates logging function wrappers to help diferentiate message made by the
- * 	developers from those made by dependencies or the system. There are utility
- * 	functions as well to help with default objects.
- *
- *  @name   GlobalApplication.js
- */
+'use strict';
 
-//  IMPORTS
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 
-import path from 'path';
-import chalk from 'chalk'; //  coloring for console label
-import pJson from '../../package.json';
+var _path = require('path');
 
-import iniDev from '../ini/development';
-import iniProd from '../ini/production';
+var _path2 = _interopRequireDefault(_path);
+
+var _chalk = require('chalk');
+
+var _chalk2 = _interopRequireDefault(_chalk);
+
+var _package = require('../../package.json');
+
+var _package2 = _interopRequireDefault(_package);
+
+var _development = require('../ini/development');
+
+var _development2 = _interopRequireDefault(_development);
+
+var _production = require('../ini/production');
+
+var _production2 = _interopRequireDefault(_production);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
  *  Ties in configurations and application reporting. It is to be imported in
@@ -34,25 +43,38 @@ import iniProd from '../ini/production';
  */
 
 //	PRIVATE VARIABLES
-let _private = new WeakMap();
+let _private = new WeakMap(); //  coloring for console label
+/**
+ *  Holds the Global application obj, this object determines information about the
+ *  running application and resolves which configuration file to use. It also
+ *  creates logging function wrappers to help diferentiate message made by the
+ * 	developers from those made by dependencies or the system. There are utility
+ * 	functions as well to help with default objects.
+ *
+ *  @name   GlobalApplication.js
+ */
 
-export default class GlobalApp {
+//  IMPORTS
 
-    constructor(mode, root, debug = false) {
+class GlobalApp {
+
+    constructor(mode, root) {
+        let debug = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+
 
         _private.set(this, {
-            mode,
-            root: path.resolve(root),
-            about: pJson.name + ' ' + pJson.version,
-            debug
+            mode: mode,
+            root: _path2.default.resolve(root),
+            about: _package2.default.name + ' ' + _package2.default.version,
+            debug: debug
         });
 
-        let origin = `${__filename} - ${this.constructor.name}`;
+        let origin = `${ __filename } - ${ this.constructor.name }`;
         let msg = ['Using ini:', mode];
 
         //  Output creation status and info
         this.log({
-            origin,
+            origin: origin,
             msg: ['Initializing.']
         });
 
@@ -60,15 +82,14 @@ export default class GlobalApp {
             msg.push(this.ini);
         }
         this.log({
-            origin,
-            msg
+            origin: origin,
+            msg: msg
         });
 
         this.log({
-            origin,
+            origin: origin,
             msg: ['Done.']
         });
-
     }
 
     /**
@@ -81,12 +102,12 @@ export default class GlobalApp {
         let _priv = _private.get(this);
 
         switch (_priv.mode) {
-        case 'development':
-            return iniDev;
-        case 'production':
-            return iniProd;
-        default:
-            return undefined;
+            case 'development':
+                return _development2.default;
+            case 'production':
+                return _production2.default;
+            default:
+                return undefined;
         }
     }
 
@@ -137,9 +158,9 @@ export default class GlobalApp {
         let color;
 
         //	Stringify any objects for easy reading
-        settings.arguments = settings.arguments.map((index) => {
+        settings.arguments = settings.arguments.map(index => {
             if (typeof index == 'object') {
-                return `\n${JSON.stringify(index, null, 2)}`;
+                return `\n${ JSON.stringify(index, null, 2) }`;
             }
             return index;
         });
@@ -147,21 +168,21 @@ export default class GlobalApp {
         //  Add error text identifier
         if (settings.error) {
             color = settings.errorColor;
-            settings.arguments.unshift(chalk[settings.errorColor](settings.errorLabel));
+            settings.arguments.unshift(_chalk2.default[settings.errorColor](settings.errorLabel));
         }
 
         //	Add function/ class caller information
         if (settings.locationLabel !== null) {
             let thisColor = color || settings.locationColor;
-            let txt = `(${settings.locationLabel})`;
-            settings.arguments.unshift(chalk[thisColor](txt));
+            let txt = `(${ settings.locationLabel })`;
+            settings.arguments.unshift(_chalk2.default[thisColor](txt));
         }
 
         //	Add application information
         if (settings.appLabel !== null) {
             let thisColor = color || settings.appColor;
-            let txt = `[${settings.appLabel}]`;
-            settings.arguments.unshift(chalk[thisColor](txt));
+            let txt = `[${ settings.appLabel }]`;
+            settings.arguments.unshift(_chalk2.default[thisColor](txt));
         }
 
         //	Add spacing around errors
@@ -255,8 +276,7 @@ export default class GlobalApp {
      */
     reqOpt(obj) {
         try {
-            if (typeof (obj.variable) === 'undefined')
-                throw obj.error
+            if (typeof obj.variable === 'undefined') throw obj.error;
         } catch (e) {
             this.err({
                 origin: obj.constructor,
@@ -323,13 +343,13 @@ export default class GlobalApp {
          *
          * 	@return		{object}	The settings object
          */
-        let makeSettings = (def, opt, ret = {}) => {
-            if (typeof (opt) === 'undefined')
-                return {};
+        let makeSettings = function makeSettings(def, opt) {
+            let ret = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
+            if (typeof opt === 'undefined') return {};
 
             for (let p in def) {
-                if (['string', 'number', 'boolean', 'symbol', 'function', null].indexOf(typeof opt[p]) >= 0 ||
-                    Array.isArray(opt[p])) {
+                if (['string', 'number', 'boolean', 'symbol', 'function', null].indexOf(typeof opt[p]) >= 0 || Array.isArray(opt[p])) {
                     ret[p] = opt[p];
                 } else if (typeof opt[p] === 'undefined') {
                     ret[p] = def[p];
@@ -342,8 +362,9 @@ export default class GlobalApp {
             }
 
             return ret;
-        }
+        };
 
         return makeSettings(def, opt);
     }
-};
+}exports.default = GlobalApp;
+;

@@ -1,16 +1,20 @@
-/**
- *  This holds the chokidar wrapper.
- *
- *  @name   gulp-monitor.js
- */
+'use strict';
 
-// IMPORTS
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 
-import chokidar from 'chokidar';
+var _chokidar = require('chokidar');
 
-//  LOCAL IMPORTS
+var _chokidar2 = _interopRequireDefault(_chokidar);
 
-import * as gu from './gulp-util';
+var _gulpUtil = require('./gulp-util');
+
+var gu = _interopRequireWildcard(_gulpUtil);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
  *  Wrapper to chokidar that allows for in pipe watch start and stopping.
@@ -19,7 +23,17 @@ import * as gu from './gulp-util';
  */
 
 //  PRIVATE VARIABLES
+/**
+ *  This holds the chokidar wrapper.
+ *
+ *  @name   gulp-monitor.js
+ */
+
+// IMPORTS
+
 let _private = new WeakMap();
+
+//  LOCAL IMPORTS
 
 class GulpMonitor {
     /**
@@ -29,7 +43,10 @@ class GulpMonitor {
      *  @param  src     {Glob}      The file paths being watched.
      *  @param  options {Object}    The options being passed to the class.
      */
-    constructor(src = global.app.ini.paths.server, options = {}) {
+    constructor() {
+        let src = arguments.length <= 0 || arguments[0] === undefined ? global.app.ini.paths.server : arguments[0];
+        let options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
         //	Default chokidar settings: https://www.npmjs.com/package/chokidar
         let defaults = {
             persistent: true,
@@ -53,10 +70,10 @@ class GulpMonitor {
 
         //  Store private variables
         _private.set(this, {
-            defaults,
-            settings,
-            options,
-            watcher: chokidar.watch(src, settings)
+            defaults: defaults,
+            settings: settings,
+            options: options,
+            watcher: _chokidar2.default.watch(src, settings)
         });
     }
 
@@ -111,4 +128,4 @@ class GulpMonitor {
 
 //  EXPORTS
 
-export default GulpMonitor;
+exports.default = GulpMonitor;

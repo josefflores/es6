@@ -7,7 +7,7 @@
     "start": "node ./dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Jose Flores <jose.flores.152@gmail.com",
+  "author": "Jose Flores <jose.flores.152@gmail.com>",
   "license": "MIT",
   "devDependencies": {
     "babel-cli": "^6.10.1",
@@ -15,6 +15,7 @@
     "babel-plugin-transform-flow-strip-types": "^6.8.0",
     "babel-preset-es2015-node5": "^1.2.0",
     "babel-preset-stage-0": "^6.5.0",
+    "chai": "^3.5.0",
     "chokidar": "^1.6.0",
     "gulp": "github:gulpjs/gulp#4.0",
     "gulp-babel": "^6.1.2",
@@ -22,7 +23,7 @@
     "gulp-debug": "^2.1.2",
     "gulp-eslint": "^2.1.0",
     "gulp-git": "^1.7.2",
-    "gulp-help": "^1.6.1",
+    "gulp-help": "github:chmontgomery/gulp-help#gulp4",
     "gulp-ignore": "^2.0.1",
     "gulp-jadelint": "^0.1.0",
     "gulp-jsbeautifier": "^2.0.3",
@@ -31,6 +32,7 @@
     "gulp-json-format": "^1.0.0",
     "gulp-jsonlint": "^1.1.2",
     "gulp-live-server": "0.0.30",
+    "gulp-mocha": "^2.2.0",
     "gulp-nodemon": "^2.1.0",
     "gulp-react": "^3.1.0",
     "gulp-run-sequence": "^0.3.2",

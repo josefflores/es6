@@ -1,12 +1,14 @@
-/**
- *  This holds the error handlers for the application.
- *
- *  @name   ErrorHandler.js
- */
+'use strict';
 
-//  IMPORTS
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 
-import path from 'path';
+var _path = require('path');
+
+var _path2 = _interopRequireDefault(_path);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
  *  This class holds all the error responses for the application.
@@ -15,21 +17,27 @@ import path from 'path';
  */
 
 //	PRIVATE VARIABLES
-let _private = new WeakMap();
+let _private = new WeakMap(); /**
+                               *  This holds the error handlers for the application.
+                               *
+                               *  @name   ErrorHandler.js
+                               */
 
-export default class ErrorHandler {
+//  IMPORTS
+
+class ErrorHandler {
 
     constructor(app) {
         let origin = this.constructor.name;
 
         _private.set(this, {
-            app,
-            origin,
+            app: app,
+            origin: origin,
             ini: global.app.ini
         });
 
         global.app.log({
-            origin,
+            origin: origin,
             msg: ['Initializing.']
         });
     }
@@ -54,7 +62,7 @@ export default class ErrorHandler {
 
         _priv.app.use((req, res) => {
             res.status(400);
-            res.render(path.join(ini.path.views, 'page.error.jade'), {
+            res.render(_path2.default.join(ini.path.views, 'page.error.jade'), {
                 title: '404: File Not Found',
                 message: '',
                 error: {}
@@ -85,11 +93,12 @@ export default class ErrorHandler {
 
         _priv.app.use((err, req, res, next) => {
             res.status(err.status || 500);
-            res.render(path.join(ini.path.views, 'page.error.jade'), {
+            res.render(_path2.default.join(ini.path.views, 'page.error.jade'), {
                 title: '500: Internal Server Error',
                 message: 'There was an error in the system, sorry for the inconvenience.',
-                error: (ini.mode === 'dev' ? error : {})
+                error: ini.mode === 'dev' ? error : {}
             });
         });
     }
-};
+}exports.default = ErrorHandler;
+;

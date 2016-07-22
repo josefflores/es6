@@ -1,15 +1,22 @@
-/**
- *  The Api handler for the application.
- *
- *  @name   Api.js
- */
+'use strict';
 
-//  REQUIRES
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 
-import path from 'path';
-import urlJoin from 'url-join';
+var _path = require('path');
 
-import httpRes from '../ini/segments/httpResponses';
+var _path2 = _interopRequireDefault(_path);
+
+var _urlJoin = require('url-join');
+
+var _urlJoin2 = _interopRequireDefault(_urlJoin);
+
+var _httpResponses = require('../ini/segments/httpResponses');
+
+var _httpResponses2 = _interopRequireDefault(_httpResponses);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
  *  This is the Api class. It adds api point to the express application.
@@ -52,26 +59,33 @@ let _private = new WeakMap();
  *  @return {Boolean}   true    The return type is valid
  *  @return {Boolean}   false   An unknown return type
  */
-let validMethod = (method) => {
+/**
+ *  The Api handler for the application.
+ *
+ *  @name   Api.js
+ */
+
+//  REQUIRES
+
+let validMethod = method => {
     return ['get', 'post', 'put', 'delete'].in(method.toLowerCase());
 };
 
-export default class Api {
+class Api {
 
     constructor(app) {
 
         //	PRIVATE VARIABLES
 
         _private.set(this, {
-            app,
-            methods: [],
+            app: app,
+            methods: []
         });
 
         global.app.log({
             origin: this.constructor.name,
             msg: ['Initializing.']
         });
-
     }
 
     /**
@@ -124,7 +138,7 @@ export default class Api {
 
         //	Linking to app
         _priv.app[ObjReturnType](obj.url, (req, res) => {
-            func(req, res, httpRes.crud[ObjReturnType]);
+            func(req, res, _httpResponses2.default.crud[ObjReturnType]);
         });
 
         global.app.log({
@@ -153,17 +167,14 @@ export default class Api {
                 msg: ['Error case', err, doc]
             });
 
-            res.status(obj.failure)
-                .send(httpRes.resp[obj.failure].msg);
+            res.status(obj.failure).send(_httpResponses2.default.resp[obj.failure].msg);
         } else {
             if (obj.data) {
                 // respond for success and send data
-                res.status(obj.success)
-                    .json(doc);
+                res.status(obj.success).json(doc);
             } else {
                 // respond for success and send status
-                res.status(obj.success)
-                    .send(httpRes.resp[obj.success].msg);
+                res.status(obj.success).send(_httpResponses2.default.resp[obj.success].msg);
             }
         }
     }
@@ -180,27 +191,24 @@ export default class Api {
 
         // Adding help method
         this.add({
-                'url': urlJoin('/api', 'get', 'help'),
-                'param': [null],
-                'desc': 'Returns an api description object.',
-                'return': 'GET'
-            },
-            (req, res, obj) => {
-                that.response(res, null, that.methods, obj);
-            });
+            'url': (0, _urlJoin2.default)('/api', 'get', 'help'),
+            'param': [null],
+            'desc': 'Returns an api description object.',
+            'return': 'GET'
+        }, (req, res, obj) => {
+            that.response(res, null, that.methods, obj);
+        });
 
         // Sort methods by url
         _priv.methods.sort((a, b) => {
-            if (a.url < b.url)
-                return -1;
-            if (a.url > b.url)
-                return 1;
+            if (a.url < b.url) return -1;
+            if (a.url > b.url) return 1;
             return 0;
         });
 
         // Bad Request the API url does not  exist
         _priv.app.get('/api/*', (req, res) => {
-            that.response(res, true, '400', httpRes.crud.MISSING);
+            that.response(res, true, '400', _httpResponses2.default.crud.MISSING);
         });
 
         global.app.log({
@@ -209,3 +217,4 @@ export default class Api {
         });
     }
 }
+exports.default = Api;

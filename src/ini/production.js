@@ -4,15 +4,15 @@
  *  @name    production.js
  */
 
-// IMPORTS
+//  IMPORTS
 
-import paths from './segments/paths.js';
+import paths from './segment/paths.js';
 
-// EXPORTS
+//  EXPORTS
 
 export default {
-    app: {
-        mode: 'prod'
+    'app': {
+        'mode': 'prod'
     },
     paths
 };

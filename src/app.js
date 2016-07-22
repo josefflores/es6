@@ -1,3 +1,1 @@
-var
-
-    hhxg;
+let hhxg;

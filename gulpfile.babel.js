@@ -4,39 +4,87 @@
  *  @name   gulpfile.js
  */
 
-//  Set up gloabal application and configuration
-
-
 //	IMPORTS
-import gulp from 'gulp';
+
+import gulp from 'gulp'
+
+//	LOCAL IMPORTS
 
 import GApp from './src/modules/GlobalApp'
-import * as gs from './src/modules/gulp/Gulp-Actions';
+import * as ga from './src/modules/gulp/gulp-actions';
+import gulpMan from './src/modules/gulp/gulp-man'
 
-//	GLOBALS
-
+//  Set up gloabal application and configuration
 global.app = new GApp('development', __dirname);
+
+//	Wrap gulp.task to allow for an object as parameter
+gulp.task = gulpMan(gulp);
 
 //	TASKS
 
-gulp.task('code-watch', gs.watch);
-
-gulp.task('code-babel', gs.babel);
-gulp.task('code-format', gs.format);
-gulp.task('code-lint', gs.lint);
-gulp.task('code-clean', gs.clean);
-gulp.task('code-init', gulp.series('code-clean', 'code-lint', 'code-format', 'code-babel'));
-
-gulp.task('server-start', gs.server.start);
-gulp.task('server-deploy', gulp.series('code-init', 'server-start', 'code-watch'));
-
-gulp.task('default', gulp.series('server-deploy'));
-/*gulp.task('help', gs.help);
-/*gulp.task('watch', () => {
-  	return nodemon({
-		script: 'dist/app.js', // run ES5 code
-        watch: 'src', // watch ES2015 code
-        tasks: ['code-process'] // compile synchronously onChange
-	})
+gulp.task({
+	name: 'code-watch',
+	desc: 'Monitors for source code changes.',
+	func: ga.watch
 });
-//gulp.task('default', gulp.series('help'));*/
+gulp.task({
+	name: 'code-babel',
+	desc: 'Transposes ES6 code to ES5',
+	func: ga.babel,
+	man: true
+});
+gulp.task({
+	name: 'code-format',
+	desc: 'Formats source code.',
+	func: ga.format,
+	man: true
+});
+gulp.task({
+	name: 'code-lint',
+	desc: 'Checks for source code errors.',
+	func: ga.lint,
+	man: true
+});
+gulp.task({
+	name: 'code-clean',
+	desc: 'Cleans distribution directory.',
+	func: ga.clean,
+	man: true
+});
+gulp.task({
+	name: 'code-test',
+	desc: 'Unit test code.',
+	func: ga.test,
+	man: true
+});
+gulp.task({
+	name: 'code-init',
+	desc: 'Prepares distribution.',
+	func: gulp.series('code-clean', 'code-lint', 'code-format', 'code-babel', 'code-test'),
+	man: true
+});
+gulp.task({
+	name: 'server-run',
+	desc: 'Runs the server.',
+	func: ga.runServer
+});
+gulp.task({
+	name: 'server-deploy',
+	desc: 'Prepares distribution, starts the server and watches for changes.',
+	func: gulp.series('code-init', 'server-run', 'code-watch')
+});
+gulp.task({
+	name: 'dev',
+	desc: 'Run development mode.',
+	func: gulp.series('server-deploy'),
+	man: true
+});
+
+//	DEFAULT - Run manpage
+
+gulp.task({
+	name: 'default',
+	man: {
+		name: 'gulpfile.babel.js'
+	}
+});
